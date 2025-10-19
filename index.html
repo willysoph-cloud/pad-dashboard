@@ -200,7 +200,7 @@
   <script>
   // SCRIPTS_PLACEHOLDER
   ;(function(){
-    const API_URL = 'https://script.google.com/macros/s/AKfycbzqDZdLoacFnAvmbRb9fK9EKvkBcwDIZU_BGk6xG4xYSUQ2MVD85Z-3KDTCmFm5FEeo4A/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyPwQQknUh0JpYWICAqHIoyFZOczKC90zMK5JiYBr2cMZEU0Gpf4PECjHAlH2CILl422w/exec';
     let data=[
       {pad:"2024-01-01 00:00:00",prontuario:"4787",nome:"EUGENIO ",dataAbertura:"2024-02-19 00:00:00",regime:"FECHADO/CONDENADO",status:"ANDAMENTO",oitiva:"REALIZADA",dataOitiva:"2024-05-27 00:00:00",horaOitiva:"09:00:00",defesa:"AGUARDANDO",julgamento:"",dataJulgamento:"",transitoJulgado:"",homologado:"",vara:"",processo:"",defensor:"ADVOGADO",nomeDefensor:" EMANUEL",observacao:" ATUALIZADO",falta:"",comportamento:"",tempoPunicao:"",dataAlteracaoComportamento:"",alterarComportamento:"",alerta:"ATENÇÃO PRAZO VENCENDO"},
       {pad:"",prontuario:"47323",nome:"JORGE TIAGO ",dataAbertura:"",regime:"FECHADO/CONDENADO",status:"",oitiva:"REALIZADA",dataOitiva:"2024-06-10 00:00:00",horaOitiva:"13:00:00",defesa:"REALIZADA",julgamento:"",dataJulgamento:"",transitoJulgado:"",homologado:"",vara:"",processo:"",defensor:"DEFENSOR",nomeDefensor:"VERAS",observacao:" ATUALIZADO",falta:"",comportamento:"",tempoPunicao:"",dataAlteracaoComportamento:"",alterarComportamento:"",alerta:"ATENÇÃO PRAZO VENCENDO"}
@@ -347,7 +347,7 @@ async function del(id){
       const fr=gv('filtro-regime'); if(fr) params.append('regime',fr);
       const fd=gv('filtro-defensor'); if(fd) params.append('defensor',fd);
       const fb=gv('filtro-busca'); if(fb) params.append('q',fb);
-      window.open(`${AKfycbzqDZdLoacFnAvmbRb9fK9EKvkBcwDIZU_BGk6xG4xYSUQ2MVD85Z_3KDTCmFm5FEeo4A}?action=export&${params.toString()}`,'_blank');
+      window.open(`${API_URL}?action=export&${params.toString()}`,'_blank');
     }
     // Navegação de views e relatórios/configurações
     function setActive(link){document.querySelectorAll('.list-group .list-group-item').forEach(a=>a.classList.remove('active')); if(link) link.classList.add('active');}
