@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle de PAD - Itaitinga 3</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    .status-andamento{background:#d4edda;color:#155724;padding:4px 8px;border-radius:4px;font-size:.85rem}
+    .status-concluido{background:#d1ecf1;color:#0c5460;padding:4px 8px;border-radius:4px;font-size:.85rem}
+    .status-sobrestado{background:#fff3cd;color:#856404;padding:4px 8px;border-radius:4px;font-size:.85rem}
+  </style>
+  <!-- CSS reduzido propositalmente; Bootstrap cuida do restante -->
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#"><i class="bi bi-journal-text me-2"></i>Controle de PAD - Itaitinga 3</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-person-circle me-1"></i> Usuário</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container-fluid py-3">
+    <div class="row">
+      <aside class="col-lg-2 col-md-3 mb-3">
+        <div class="list-group">
+          <a id="nav-dashboard" class="list-group-item list-group-item-action active" href="#"><i class="bi bi-house-door me-2"></i> Dashboard</a>
+          <a id="nav-todos" class="list-group-item list-group-item-action" href="#"><i class="bi bi-table me-2"></i> Todos os PADs</a>
+          <a id="nav-novo" class="list-group-item list-group-item-action" href="#"><i class="bi bi-plus-circle me-2"></i> Novo PAD</a>
+          <a class="list-group-item list-group-item-action" href="#"><i class="bi bi-graph-up me-2"></i> Relatórios</a>
+          <a class="list-group-item list-group-item-action" href="#"><i class="bi bi-gear me-2"></i> Configurações</a>
+        </div>
+      </aside>
+      <section class="col-lg-10 col-md-9">
+        <div id="view-list">
+        <div class="card mb-3"><div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label" for="filtro-status">Status</label>
+              <select class="form-select" id="filtro-status">
+                <option value="">Todos</option>
+                <option value="ANDAMENTO">Andamento</option>
+                <option value="CONCLUIDO">Concluído</option>
+                <option value="SOBRESTADO">Sobrestado</option>
+                <option value="ARQUIVAR">Arquivar</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="filtro-regime">Regime</label>
+              <select class="form-select" id="filtro-regime">
+                <option value="">Todos</option>
+                <option value="FECHADO/CONDENADO">Fechado/Condenado</option>
+                <option value="PROVISÓRIO">Provisório</option>
+                <option value="SEMIABERTO">Semiaberto</option>
+                <option value="ABERTO">Aberto</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="filtro-defensor">Advogado</label>
+              <select class="form-select" id="filtro-defensor">
+                <option value="">Todos</option>
+                <option value="VERAS">Veras</option>
+                <option value="DELANO">Delano</option>
+                <option value="FABIO IVO">Fabio Ivo</option>
+                <option value="LUIZA NIVEA">Luiza Nivea</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label" for="filtro-busca">Buscar</label>
+              <div class="input-group">
+                <input class="form-control" id="filtro-busca" placeholder="Nome, prontuário..." />
+                <button class="btn btn-outline-secondary" id="btn-limpar-filtros" type="button"><i class="bi bi-arrow-clockwise"></i></button>
+              </div>
+            </div>
+          </div>
+        </div></div>
+
+        <div id="summary-cards" class="row g-3 mb-3">
+          <div class="col-md-3"><div class="card"><div class="card-body d-flex justify-content-between align-items-center"><div><div class="text-muted">Total de PADs</div><div class="fs-3" id="total-pads">0</div></div><i class="bi bi-journal-text fs-2 text-primary"></i></div></div></div>
+          <div class="col-md-3"><div class="card"><div class="card-body d-flex justify-content-between align-items-center"><div><div class="text-muted">Em Andamento</div><div class="fs-3 text-success" id="andamento-pads">0</div></div><i class="bi bi-clock fs-2 text-success"></i></div></div></div>
+          <div class="col-md-3"><div class="card"><div class="card-body d-flex justify-content-between align-items-center"><div><div class="text-muted">Concluídos</div><div class="fs-3 text-info" id="concluidos-pads">0</div></div><i class="bi bi-check-circle fs-2 text-info"></i></div></div></div>
+          <div class="col-md-3"><div class="card"><div class="card-body d-flex justify-content-between align-items-center"><div><div class="text-muted">Prazos Vencendo</div><div class="fs-3 text-warning" id="prazos-pads">0</div></div><i class="bi bi-exclamation-triangle fs-2 text-warning"></i></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Lista de PADs</h5>
+            <div>
+              <button class="btn btn-primary btn-sm" id="btn-novo-pad"><i class="bi bi-plus-circle me-1"></i> Novo PAD</button>
+              <button class="btn btn-outline-primary btn-sm ms-2" id="btn-exportar"><i class="bi bi-download me-1"></i> Exportar</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover" id="tabela-pads">
+                <thead><tr>
+                  <th>PAD</th><th>Prontuário</th><th>Nome</th><th>Data Abertura</th><th>Regime</th><th>Status</th><th>Oitiva</th><th>Data Oitiva</th><th>Defesa</th><th>Julgamento</th><th>Homologado</th><th>Defensor</th><th>Comportamento</th><th>Ações</th>
+                </tr></thead>
+                <tbody id="corpo-tabela"></tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <div>Mostrando <span id="registros-visiveis">0</span> de <span id="total-registros">0</span> registros</div>
+              <nav><ul class="pagination pagination-sm" id="paginacao"></ul></nav>
+            </div>
+          </div>
+        </div>
+        </div>
+        
+        <div id="view-reports" class="d-none">
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Relatórios</h5>
+              <div>
+                <button class="btn btn-outline-primary btn-sm" id="btn-export-relatorios"><i class="bi bi-download me-1"></i> Exportar CSV</button>
+                <button class="btn btn-outline-secondary btn-sm ms-2" id="btn-imprimir-relatorios"><i class="bi bi-printer me-1"></i> Imprimir</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-4">
+                <div class="col-md-4">
+                  <h6 class="mb-3">Por Status</h6>
+                  <div id="rel-sum-status"></div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-3">Por Regime</h6>
+                  <div id="rel-sum-regime"></div>
+                </div>
+                <div class="col-md-4">
+                  <h6 class="mb-3">Por Defensor</h6>
+                  <div id="rel-sum-defensor"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-settings" class="d-none">
+          <div class="card">
+            <div class="card-header"><h5 class="mb-0">Configurações</h5></div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="input-per-page" class="form-label">Registros por página</label>
+                  <input type="number" min="1" class="form-control" id="input-per-page" />
+                </div>
+                <div class="col-md-4">
+                  <label for="input-alert-days" class="form-label">Dias para alerta de prazo</label>
+                  <input type="number" min="1" class="form-control" id="input-alert-days" />
+                </div>
+              </div>
+              <div class="mt-3 d-flex flex-wrap gap-2">
+                <button class="btn btn-primary" id="btn-salvar-config">Salvar Configurações</button>
+                <button class="btn btn-outline-primary" id="btn-export-json"><i class="bi bi-filetype-json me-1"></i> Exportar JSON</button>
+                <button class="btn btn-outline-secondary" id="btn-import-json"><i class="bi bi-upload me-1"></i> Importar JSON</button>
+                <input type="file" id="input-file-json" accept="application/json" class="d-none" />
+                <button class="btn btn-outline-danger" id="btn-limpar-dados"><i class="bi bi-trash me-1"></i> Limpar Dados</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal fade" id="modal-pad" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="modal-pad-titulo">Novo PAD</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="form-pad"><div class="row g-3">
+          <div class="col-md-6"><label class="form-label" for="input-pad">PAD</label><input class="form-control" id="input-pad"></div>
+          <div class="col-md-6"><label class="form-label" for="input-prontuario">Prontuário</label><input class="form-control" id="input-prontuario"></div>
+          <div class="col-md-12"><label class="form-label" for="input-nome">Nome</label><input class="form-control" id="input-nome"></div>
+          <div class="col-md-6"><label class="form-label" for="input-data-abertura">Data de Abertura</label><input type="date" class="form-control" id="input-data-abertura"></div>
+          <div class="col-md-6"><label class="form-label" for="select-regime">Regime</label><select class="form-select" id="select-regime"><option value="FECHADO/CONDENADO">Fechado/Condenado</option><option value="PROVISÓRIO">Provisório</option><option value="SEMIABERTO">Semiaberto</option><option value="ABERTO">Aberto</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-status">Status</label><select class="form-select" id="select-status"><option value="ANDAMENTO">Andamento</option><option value="CONCLUIDO">Concluído</option><option value="SOBRESTADO">Sobrestado</option><option value="ARQUIVAR">Arquivar</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-oitiva">Oitiva</label><select class="form-select" id="select-oitiva"><option value="REALIZADA">Realizada</option><option value="AGENDAR">Agendar</option><option value="SOBRESTADO">Sobrestado</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="input-data-oitiva">Data da Oitiva</label><input type="date" class="form-control" id="input-data-oitiva"></div>
+          <div class="col-md-6"><label class="form-label" for="select-defesa">Defesa</label><select class="form-select" id="select-defesa"><option value="AGUARDANDO">Aguardando</option><option value="REALIZADA">Realizada</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-julgamento">Julgamento</label><select class="form-select" id="select-julgamento"><option value="">-</option><option value="REALIZADO">Realizado</option><option value="SOBRESTADO">Sobrestado</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-homologado">Homologado</label><select class="form-select" id="select-homologado"><option value="SIM">Sim</option><option value="NÃO">Não</option><option value="AGUARDANDO">Aguardando</option><option value="SOBRESTADO">Sobrestado</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-defensor">Defensor</label><select class="form-select" id="select-defensor"><option value="VERAS">Veras</option><option value="DELANO">Delano</option><option value="FABIO IVO">Fabio Ivo</option><option value="LUIZA NIVEA">Luiza Nivea</option><option value="ADVOGADO">Advogado</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-falta">Falta</label><select class="form-select" id="select-falta"><option value="">-</option><option value="LEVE">Leve</option><option value="MEDIA">Media</option><option value="GRAVE">Grave</option></select></div>
+          <div class="col-md-6"><label class="form-label" for="select-comportamento">Comportamento</label><select class="form-select" id="select-comportamento"><option value="BOM">Bom</option><option value="REGULAR">Regular</option><option value="MAU">Mau</option></select></div>
+          <div class="col-12"><label class="form-label" for="textarea-observacao">Observação</label><textarea class="form-control" id="textarea-observacao" rows="3"></textarea></div>
+        </div></form>
+      </div>
+      <div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" id="btn-salvar-pad">Salvar</button></div>
+    </div></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+  // SCRIPTS_PLACEHOLDER
+  ;(function(){
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzqDZdLoacFnAvmbRb9fK9EKvkBcwDIZU_BGk6xG4xYSUQ2MVD85Z-3KDTCmFm5FEeo4A/exec';
+    let data=[
+      {pad:"2024-01-01 00:00:00",prontuario:"47879.0",nome:"EUGENIO MARQUES BEZERRA",dataAbertura:"2024-02-19 00:00:00",regime:"FECHADO/CONDENADO",status:"ANDAMENTO",oitiva:"REALIZADA",dataOitiva:"2024-05-27 00:00:00",horaOitiva:"09:00:00",defesa:"AGUARDANDO",julgamento:"",dataJulgamento:"",transitoJulgado:"",homologado:"",vara:"",processo:"",defensor:"ADVOGADO",nomeDefensor:"CINTIA EMANUELA DANIEL ALVES",observacao:"SIGEPEN ATUALIZADO",falta:"",comportamento:"",tempoPunicao:"",dataAlteracaoComportamento:"",alterarComportamento:"",alerta:"ATENÇÃO PRAZO VENCENDO"},
+      {pad:"",prontuario:"473235.0",nome:"JORGE TIAGO ARAUJO MONTEIRO",dataAbertura:"",regime:"FECHADO/CONDENADO",status:"",oitiva:"REALIZADA",dataOitiva:"2024-06-10 00:00:00",horaOitiva:"13:00:00",defesa:"REALIZADA",julgamento:"",dataJulgamento:"",transitoJulgado:"",homologado:"",vara:"",processo:"",defensor:"DEFENSOR",nomeDefensor:"VERAS",observacao:"SIGEPEN ATUALIZADO",falta:"",comportamento:"",tempoPunicao:"",dataAlteracaoComportamento:"",alterarComportamento:"",alerta:"ATENÇÃO PRAZO VENCENDO"}
+    ];
+    let page=1, per=10, filtered=[], editMode=false, editIdx=null, alertDays=60;
+    document.addEventListener('DOMContentLoaded', async ()=>{ await load(); bind(); await sum(); table();});
+    function gi(id){return document.getElementById(id);} function qsa(s){return document.querySelectorAll(s);} function gv(id){return gi(id).value;} function sv(id,v){gi(id).value=v;}
+    async function load(){
+      try {
+        const res = await fetch(`${API_URL}?action=list`, { method: 'GET' });
+        const json = await res.json();
+        data = Array.isArray(json.data) ? json.data : [];
+      } catch (e) {
+        console.error('Falha ao carregar dados da API. Usando dados locais.', e);
+      }
+      try {
+        const cfg=localStorage.getItem('padSettings');
+        if(cfg){ const c=JSON.parse(cfg); if(c.per) per=parseInt(c.per)||per; if(c.alertDays) alertDays=parseInt(c.alertDays)||alertDays; }
+      } catch(_) {}
+      normalize();
+      filtered=[...data];
+    }
+    function normalize(){data=data.map(p=>{const n={...p}; if(n.status){const s=(n.status+"").toUpperCase(); if(s==="CONCLUÍDO"||s==="CONCLU�DO") n.status="CONCLUIDO";} if(n.homologado==="N�O") n.homologado="NÃO"; if(n.alerta==="ATEN��O PRAZO VENCENDO") n.alerta="ATENÇÃO PRAZO VENCENDO"; if(n.regime==="PROVIS�RIO") n.regime="PROVISÓRIO"; return n;});}
+    function bind(){
+      gi('filtro-status').addEventListener('change',filters);
+      gi('filtro-regime').addEventListener('change',filters);
+      gi('filtro-defensor').addEventListener('change',filters);
+      gi('filtro-busca').addEventListener('input',filters);
+      gi('btn-limpar-filtros').addEventListener('click',clearFilters);
+      gi('btn-novo-pad').addEventListener('click',openNew);
+      gi('btn-salvar-pad').addEventListener('click',save);
+      gi('btn-exportar').addEventListener('click',exportCSV);
+      gi('paginacao').addEventListener('click',e=>{if(e.target.classList.contains('page-link')){const p=parseInt(e.target.getAttribute('data-pagina')); if(!isNaN(p)) changePage(p);}});
+      // Garantir select de Falta com "-" e id correto
+      fixFaltaSelect();
+      // Menu lateral
+      const relA=document.querySelector('.list-group .bi-graph-up'); if(relA){const a=relA.closest('a'); if(a) a.id='nav-relatorios';}
+      const cfgA=document.querySelector('.list-group .bi-gear'); if(cfgA){const a=cfgA.closest('a'); if(a) a.id='nav-config';}
+      const dash=gi('nav-dashboard'); if(dash){dash.addEventListener('click',e=>{e.preventDefault(); setActive(e.currentTarget); showView('list'); toggleSummary(true);});}
+      const todos=gi('nav-todos'); if(todos){todos.addEventListener('click',e=>{e.preventDefault(); setActive(e.currentTarget); showView('list'); toggleSummary(false);});}
+      const novo=gi('nav-novo'); if(novo){novo.addEventListener('click',e=>{e.preventDefault(); setActive(e.currentTarget); openNew();});}
+      const rel=gi('nav-relatorios'); if(rel){rel.addEventListener('click',e=>{e.preventDefault(); setActive(e.currentTarget); showView('reports'); renderReports();});}
+      const cfg=gi('nav-config'); if(cfg){cfg.addEventListener('click',e=>{e.preventDefault(); setActive(e.currentTarget); showView('settings'); loadSettings();});}
+      // Relatórios
+      const btnER=gi('btn-export-relatorios'); if(btnER){btnER.addEventListener('click',exportReportsCSV);} 
+      const btnPR=gi('btn-imprimir-relatorios'); if(btnPR){btnPR.addEventListener('click',()=>window.print());}
+      // Configurações
+      const btnSC=gi('btn-salvar-config'); if(btnSC){btnSC.addEventListener('click',saveSettings);} 
+      const btnEJ=gi('btn-export-json'); if(btnEJ){btnEJ.addEventListener('click',exportDataJSON);} 
+      const btnIJ=gi('btn-import-json'); if(btnIJ){btnIJ.addEventListener('click',()=>gi('input-file-json').click());}
+      const inpF=gi('input-file-json'); if(inpF){inpF.addEventListener('change',importDataJSON);} 
+      const btnLD=gi('btn-limpar-dados'); if(btnLD){btnLD.addEventListener('click',clearData);} 
+    }
+    function filters(){
+      const fs=gv('filtro-status'), fr=gv('filtro-regime'), fd=gv('filtro-defensor'), fb=gv('filtro-busca').toLowerCase();
+      filtered=data.filter(p=>{
+        if(fs && (p.status||'')!==fs) return false;
+        if(fr && (p.regime||'')!==fr) return false;
+        if(fd && (p.nomeDefensor||'').toUpperCase()!==fd.toUpperCase()) return false;
+        if(fb){ const n=(p.nome||'').toLowerCase(); const pr=(p.prontuario?String(p.prontuario):'').toLowerCase(); if(!n.includes(fb)&&!pr.includes(fb)) return false; }
+        return true;
+      });
+      page=1; table(); sum();
+    }
+    function fixFaltaSelect(){
+      let sel=document.getElementById('select-falta');
+      if(!sel){ const lbl=document.querySelector('label[for="select-falta"]'); if(lbl){ const cand=lbl.parentElement ? lbl.parentElement.querySelector('select') : null; if(cand){ sel=cand; sel.id='select-falta'; } } }
+      if(sel){
+        const current = sel.value;
+        sel.classList.add('form-select');
+        sel.innerHTML = '<option value="">-</option><option value="LEVE">Leve</option><option value="MEDIA">Media</option><option value="GRAVE">Grave</option>';
+        sel.value = (current === '-' ? '' : (current || ''));
+      }
+    }
+    function clearFilters(){sv('filtro-status',''); sv('filtro-regime',''); sv('filtro-defensor',''); sv('filtro-busca',''); filtered=[...data]; page=1; table(); sum();}
+    function dspDate(d){if(!d) return ''; const dt=new Date(d); return isNaN(dt)?'':dt.toLocaleDateString('pt-BR');}
+    function inpDate(d){if(!d) return ''; const dt=new Date(d); return isNaN(dt)?'':dt.toISOString().split('T')[0];}
+    function dspStatus(s){if(!s) return ''; const u=String(s).toUpperCase(); if(u==='ANDAMENTO') return '<span class="status-andamento">Andamento</span>'; if(u==='CONCLUIDO'||u==='CONCLUÍDO'||u==='CONCLU�DO') return '<span class="status-concluido">Concluído</span>'; if(u==='SOBRESTADO') return '<span class="status-sobrestado">Sobrestado</span>'; return s;}
+    function alerta(d){if(!d) return ''; const hoje=new Date(), a=new Date(d); if(isNaN(a)) return ''; const diff=Math.floor((hoje-a)/(1000*60*60*24)); return diff>60?'ATENÇÃO PRAZO VENCENDO':'';}
+    // tabela e ações
+    function table(){
+      const body=gi('corpo-tabela'); body.innerHTML='';
+      const start=(page-1)*per, end=start+per; const slice=filtered.slice(start,end);
+      slice.forEach((p,i)=>{const tr=document.createElement('tr'); if(p.alerta&&String(p.alerta).includes('PRAZO VENCENDO')) tr.classList.add('table-warning'); tr.innerHTML=`<td>${p.pad||'-'}</td><td>${p.prontuario||'-'}</td><td>${p.nome||'-'}</td><td>${dspDate(p.dataAbertura)||'-'}</td><td>${p.regime||'-'}</td><td>${dspStatus(p.status)}</td><td>${p.oitiva||'-'}</td><td>${dspDate(p.dataOitiva)||'-'}</td><td>${p.defesa||'-'}</td><td>${p.julgamento||'-'}</td><td>${p.homologado||'-'}</td><td>${p.nomeDefensor||'-'}</td><td>${p.comportamento||'-'}</td><td><button class='btn btn-sm btn-outline-primary editar-pad' data-id='${start+i}'><i class='bi bi-pencil'></i></button> <button class='btn btn-sm btn-outline-danger excluir-pad' data-id='${start+i}'><i class='bi bi-trash'></i></button></td>`; body.appendChild(tr);});
+      qsa('.editar-pad').forEach(b=>b.addEventListener('click',()=>openEdit(parseInt(b.getAttribute('data-id')))));
+      qsa('.excluir-pad').forEach(b=>b.addEventListener('click',()=>del(parseInt(b.getAttribute('data-id')))));
+      gi('registros-visiveis').textContent=slice.length; gi('total-registros').textContent=filtered.length; pager();
+    }
+    function pager(){
+      const total=Math.ceil(filtered.length/per), ul=gi('paginacao'); ul.innerHTML='';
+      const liPrev=document.createElement('li'); liPrev.className=`page-item ${page===1?'disabled':''}`; liPrev.innerHTML=`<a class="page-link" href="#" data-pagina="${Math.max(1,page-1)}">Anterior</a>`; ul.appendChild(liPrev);
+      if(total>0){ for(let i=1;i<=total;i++){const li=document.createElement('li'); li.className=`page-item ${i===page?'active':''}`; li.innerHTML=`<a class='page-link' href='#' data-pagina='${i}'>${i}</a>`; ul.appendChild(li);} }
+      const liNext=document.createElement('li'); const dis= total===0 || page===total; liNext.className=`page-item ${dis?'disabled':''}`; liNext.innerHTML=`<a class='page-link' href='#' data-pagina='${total===0?1:page+1}'>Próximo</a>`; ul.appendChild(liNext);
+    }
+    function changePage(p){
+      const total=Math.ceil(filtered.length/per); if(total===0) return; if(p>=1 && p<=total){ page=p; table(); }
+    }
+    async function sum(){
+      try {
+        const res = await fetch(`${API_URL}?action=stats&alertDays=${encodeURIComponent(alertDays)}`);
+        const s = await res.json();
+        gi('total-pads').textContent = s.total ?? 0;
+        gi('andamento-pads').textContent = s.andamento ?? 0;
+        gi('concluidos-pads').textContent = s.concluido ?? 0;
+        gi('prazos-pads').textContent = s.alertas ?? 0;
+      } catch (e) {
+        const total=data.length, and=data.filter(p=>(p.status||'')==='ANDAMENTO').length, concl=data.filter(p=>(p.status||'')==='CONCLUIDO').length, prazos=data.filter(p=>p.alerta&&String(p.alerta).includes('PRAZO VENCENDO')).length;
+        gi('total-pads').textContent=total; gi('andamento-pads').textContent=and; gi('concluidos-pads').textContent=concl; gi('prazos-pads').textContent=prazos;
+      }
+    }
+    function openNew(){
+      editMode=false; editIdx=null; gi('modal-pad-titulo').textContent='Novo PAD'; gi('form-pad').reset(); new bootstrap.Modal(gi('modal-pad')).show();
+    }
+    function openEdit(id){
+      editMode=true; editIdx=id; gi('modal-pad-titulo').textContent='Editar PAD'; const p=filtered[id];
+      sv('input-pad',p.pad||''); sv('input-prontuario',p.prontuario||''); sv('input-nome',p.nome||''); sv('input-data-abertura',inpDate(p.dataAbertura)||''); sv('select-regime',p.regime||'FECHADO/CONDENADO'); sv('select-status',p.status||'ANDAMENTO'); sv('select-oitiva',p.oitiva||'REALIZADA'); sv('input-data-oitiva',inpDate(p.dataOitiva)||''); sv('select-defesa',p.defesa||'AGUARDANDO'); sv('select-julgamento',p.julgamento||''); sv('select-homologado',p.homologado||'SIM'); sv('select-defensor',p.nomeDefensor||'VERAS'); sv('select-falta',p.falta||''); sv('select-comportamento',p.comportamento||'BOM'); sv('textarea-observacao',p.observacao||''); new bootstrap.Modal(gi('modal-pad')).show();
+    }
+async function save(){
+      const nomeDef=gv('select-defensor'); const tipo=(nomeDef||'').toUpperCase()==='ADVOGADO'?'ADVOGADO':'DEFENSOR';
+      const faltaVal=(gv('select-falta')||'');
+      const obj={pad:gv('input-pad'),prontuario:gv('input-prontuario'),nome:gv('input-nome'),dataAbertura:gv('input-data-abertura'),regime:gv('select-regime'),status:gv('select-status'),oitiva:gv('select-oitiva'),dataOitiva:gv('input-data-oitiva'),defesa:gv('select-defesa'),julgamento:gv('select-julgamento'),homologado:gv('select-homologado'),defensor:tipo,nomeDefensor:nomeDef,falta:(faltaVal==='-'?'':faltaVal),comportamento:gv('select-comportamento'),observacao:gv('textarea-observacao')};
+      try{
+        if(editMode){
+          const p=filtered[editIdx];
+          await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'update',id:p.id,data:obj})});
+        }else{
+          await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'create',data:obj})});
+        }
+        await load(); filters(); await sum();
+        bootstrap.Modal.getInstance(gi('modal-pad')).hide();
+      }catch(e){console.error('Falha ao salvar',e);}
+    }
+async function del(id){
+      if(!confirm('Tem certeza que deseja excluir este PAD?')) return;
+      try{
+        const p=filtered[id];
+        await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'delete',id:p.id})});
+        await load(); filters(); await sum();
+      }catch(e){console.error('Falha ao excluir',e);}
+    }
+    function exportCSV(){
+      const params=new URLSearchParams();
+      const fs=gv('filtro-status'); if(fs) params.append('status',fs);
+      const fr=gv('filtro-regime'); if(fr) params.append('regime',fr);
+      const fd=gv('filtro-defensor'); if(fd) params.append('defensor',fd);
+      const fb=gv('filtro-busca'); if(fb) params.append('q',fb);
+      window.open(`${AKfycbzqDZdLoacFnAvmbRb9fK9EKvkBcwDIZU_BGk6xG4xYSUQ2MVD85Z_3KDTCmFm5FEeo4A}?action=export&${params.toString()}`,'_blank');
+    }
+    // Navegação de views e relatórios/configurações
+    function setActive(link){document.querySelectorAll('.list-group .list-group-item').forEach(a=>a.classList.remove('active')); if(link) link.classList.add('active');}
+    function showView(which){const list=gi('view-list'), rep=gi('view-reports'), set=gi('view-settings'); if(which==='reports'){list.classList.add('d-none'); rep.classList.remove('d-none'); set.classList.add('d-none');} else if(which==='settings'){list.classList.add('d-none'); rep.classList.add('d-none'); set.classList.remove('d-none');} else {list.classList.remove('d-none'); rep.classList.add('d-none'); set.classList.add('d-none');}}
+    function toggleSummary(show){ const el=gi('summary-cards'); if(!el) return; if(show){ el.classList.remove('d-none'); } else { el.classList.add('d-none'); } }
+    function groupBy(arr, key){const m=new Map(); arr.forEach(o=>{const k=(o[key]||'').toString(); m.set(k,(m.get(k)||0)+1);}); return m;}
+    function renderGroup(containerId, map){const el=gi(containerId); el.innerHTML=''; const total=Array.from(map.values()).reduce((a,b)=>a+b,0)||1; map.forEach((v,k)=>{const pct=Math.round((v*100)/total); const row=document.createElement('div'); row.className='mb-2'; row.innerHTML=`<div class='d-flex justify-content-between small'><span>${k||'-'}</span><span>${v}</span></div><div class='progress' style='height:6px;'><div class='progress-bar' role='progressbar' style='width:${pct}%'></div></div>`; el.appendChild(row);});}
+    function renderReports(){
+      const mStatus=groupBy(data.map(p=>({ ...p, status: (p.status||'')==='CONCLUIDO'?'Concluído':(p.status||'') })), 'status');
+      const mReg=groupBy(data,'regime');
+      const mDef=groupBy(data,'nomeDefensor');
+      renderGroup('rel-sum-status', mStatus);
+      renderGroup('rel-sum-regime', mReg);
+      renderGroup('rel-sum-defensor', mDef);
+    }
+    function exportReportsCSV(){
+      const blocks=[
+        {label:'Status', map: groupBy(data.map(p=>({ ...p, status:(p.status||'')==='CONCLUIDO'?'Concluído':(p.status||'' )})), 'status')},
+        {label:'Regime', map: groupBy(data,'regime')},
+        {label:'Defensor', map: groupBy(data,'nomeDefensor')},
+      ];
+      const rows=[['Categoria','Chave','Quantidade']];
+      blocks.forEach(b=>{ b.map.forEach((v,k)=>{rows.push([b.label, k, v]);}); });
+      const sep=';'; const esc=v=>{const s=String(v).replace(/"/g,'""'); return (s.includes(sep)||s.includes('\n')||s.includes('"'))?`"${s}"`:s;};
+      const csv=rows.map(r=>r.map(esc).join(sep)).join('\r\n'); const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='relatorios.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    }
+    function loadSettings(){ sv('input-per-page', per); sv('input-alert-days', alertDays); }
+    function saveSettings(e){ if(e) e.preventDefault(); const np=parseInt(gv('input-per-page')); const na=parseInt(gv('input-alert-days')); if(np>0) per=np; if(na>0) alertDays=na; localStorage.setItem('padSettings', JSON.stringify({per, alertDays}));
+      const h=alertDays; const hoje=new Date();
+      data=data.map(p=>{ const out={...p}; if(!p.dataAbertura){out.alerta=''; return out;} const a=new Date(p.dataAbertura); if(isNaN(a)){out.alerta=''; return out;} const diff=Math.floor((hoje-a)/(1000*60*60*24)); out.alerta = diff>h ? 'ATENÇÃO PRAZO VENCENDO' : ''; return out; });
+      localStorage.setItem('dadosPads', JSON.stringify(data)); filters(); sum(); }
+    function exportDataJSON(){ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='pads.json'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+    function importDataJSON(e){ const f=e.target.files[0]; if(!f) return; const reader=new FileReader(); reader.onload=()=>{ try{ const arr=JSON.parse(reader.result); if(Array.isArray(arr)){ data=arr; normalize(); localStorage.setItem('dadosPads', JSON.stringify(data)); filters(); sum(); showView('list'); setActive(gi('nav-todos')||gi('nav-dashboard')); } }catch{} }; reader.readAsText(f); e.target.value=''; }
+    function clearData(){ if(confirm('Limpar todos os dados?')){ localStorage.removeItem('dadosPads'); localStorage.removeItem('padSettings'); location.reload(); } }
+  })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
